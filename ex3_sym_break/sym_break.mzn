@@ -1,24 +1,24 @@
 include "alldifferent.mzn";
-% we will use the following indexes:
-% i will refer to a group. Thus, it will range between 0 and g − 1.
+include "increasing.mzn";
+
+% g - number of groups
 int: g;
 set of int: GROUP = 1..g;
 
-% j will refer to a member of a group. Thus, it will range between 0
-% and s − 1.
+% s - number of members in a group
 int: s;
 set of int: GROUP_MEMBER = 1..s;
 
-% people number is n
+% n - number of people
 int: n = g*s;
 set of int: PEOPLE = 1..n;
 
-% k will refer to a week. Thus, it will range between 0 and w − 1.
+% w - number of weeks
 int: w;
 set of int: WEEKS = 1..w;
 
-% we define integer variables xijk taking values in the range [0..n−1].
-% If xijk ← v, it means that person v is the j-th member of group i at
+% integer variables xijk taking values in the range [1..n]
+%  xijk == v means that person v is the j-th member of group i at
 % week k
 array[GROUP, GROUP_MEMBER, WEEKS] of var PEOPLE: x;
 
@@ -35,19 +35,24 @@ constraint forall(k1,k2 in 1..w where k1<k2)
                         ((x[i1,j1i1,k1] != x[i2,j1i2,k2]) \/ (x[i1,j2i1,k1] != x[i2,j2i2,k2])))));
              
 % symmetry break constraints
+
+% players permutations
 % we only need to assign consecutive values
-% 0, 1, .., n − 1 to the variables of the first column.
-constraint forall(i in GROUP, j in 1..s-1) (x[i,j,1] +1==x[i,j+1,1]);
-constraint forall(i in 1..g-1) (x[i,s,1] + 1 == x[i+1,1,1]);
+% 1, 2, .., n to the variables of the first column.
+constraint increasing([x[i,j,1] | i in GROUP, j in GROUP_MEMBER]);
+constraint increasing([x[i,1,1] | i in GROUP]);
  
+% in-group permutations
 % we only need to force the members to be in increasing order
-constraint forall(i in GROUP, j in 1..s-1, k in WEEKS)(x[i,j,k]<x[i,j+1,k]);
+constraint forall(i in GROUP, k in WEEKS)(increasing([x[i,j,k] | j in GROUP_MEMBER]));
  
-% for all weeks order the group in increasing order of their first member
-constraint forall(i in 1..g-1, k in WEEKS) (x[i,1,k]<x[i+1,1,k]);
+% group permutations 
+% for all weeks order the groups in increasing order of their first member
+constraint forall(k in WEEKS) (increasing([x[i,1,k] | i in GROUP]));
  
-% the second elements must be diferent at each week
-constraint forall(k in 1..w-1) (x[1,2,k]<x[1,2,k+1]);
+% week permutations 
+% order the weeks in increasing order of the second member of the first group
+constraint increasing ([x[1,2,k] | k in WEEKS]);
 
 solve satisfy;
  
