@@ -1,4 +1,6 @@
 include "partition_set.mzn";
+include "globals.mzn";
+include "lex_greater.mzn";
 % include "coercion.mzn";
 % g - number of groups
 int: g;
@@ -26,7 +28,7 @@ constraint forall(i in GROUP, j in WEEKS)
                 (card(x[i,j]) == s);
                 
 % every player plays every week
-%constraint forall(j in WEEKS)
+% constraint forall(j in WEEKS)
 %               (card(array_union([x[i,j] | i in GROUP])) == n);
 constraint  forall(j in WEEKS) (partition_set([x[i,j] | i in GROUP], PEOPLE));
  
@@ -44,16 +46,19 @@ constraint forall (i in GROUP) (x[i,1] == ((i-1)*s+1)..i*s);
 % group permutations 
 % week permutations 
 % for all weeks order the groups in increasing order of their first member
-% constraint forall(j in WEEKS) (increasing([min(x[i,j]) | i in GROUP]));
+% first members
+constraint forall(j in WEEKS, i in 1..g-1)(min([k | k in x[i,j]]) < min([k | k in x[i+1,j]]));
 
 % order the weeks in increasing order of the second member of the first group
-% constraint increasing ([x[1,2,k] | k in WEEKS]);
+constraint forall(j in 1..w-1) ([k | k in x[1,j]][2] < [k | k in x[1,j+1]][2]);
                 
 solve satisfy;
 
 output
+% [show(bool2int(([k | k in x[1,j]][2] < [k | k in x[1,j+1]][2]))) | j in 1..w-1]
     [show(x[i, j]) ++
      if j mod w == 0 then "\n" else "," endif
      | i in GROUP, j in WEEKS
     ];
+
 
