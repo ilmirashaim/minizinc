@@ -44,10 +44,13 @@ constraint forall(i in PEOPLE)  (x[i,1] == (((i-1) div s)+1));
 % group permutations 
 % week permutations 
 % groups should appear in increasing order
-constraint  forall(i in 1..s-1) (x[i,2] <x[i+1,2]);
+constraint forall (j in WEEKS) (increasing([arg_min([if x[i,j]==k then i else n+1 endif | i in PEOPLE]) | k in GROUP ]));
+
+% the weeks shouldd be orderd by increasing order of the second member of the first group
+constraint increasing ([arg_min([if x[i,j]==1 then i else n+1 endif | i in 2..n]) | j in WEEKS]);
 
 % the first group for the first person is 1 for every week
-constraint forall(j in WEEKS) (x[1,j] == 1);
+% constraint forall(j in WEEKS) (x[1,j] == 1);
 solve satisfy;
  
  
