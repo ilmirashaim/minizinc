@@ -1,0 +1,14 @@
+m = 5; % number of missions
+n = 15; % number of people
+
+% team of people for each mission (lower bound)
+lm = [2, 3, 4, 2, 3];
+
+% team of people for each mission (upper bound)
+um = [9, 10, 11, 9, 15];
+
+% each person has to participate in x missions (lower bound)
+lp = [1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1];
+
+% each person has to participate in x missions (upper bound)
+up = [3, 5, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
