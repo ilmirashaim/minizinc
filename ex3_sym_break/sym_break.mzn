@@ -60,7 +60,7 @@ solve satisfy;
 output
     [show(x[i, j, k]) ++
      if k mod w == 0 then "\n" else "," endif ++
-     if j mod s == 0 /\ k != w+1 then
+     if j mod s == 0 then
         if k mod w == 0 then "\n" else "" endif
      else "" endif
      | i in GROUP, j in GROUP_MEMBER, k in WEEKS

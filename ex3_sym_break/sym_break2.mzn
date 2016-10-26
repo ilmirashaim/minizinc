@@ -47,11 +47,12 @@ constraint forall (i in GROUP) (x[i,1] == ((i-1)*s+1)..i*s);
 % week permutations 
 % for all weeks order the groups in increasing order of their first member
 % first members
-constraint forall(j in WEEKS, i in 1..g-1)(min([k | k in x[i,j]]) < min([k | k in x[i+1,j]]));
+% constraint forall(j in WEEKS, i in 1..g-1)(min([k | k in x[i,j]]) < min([k | k in x[i+1,j]]));
+constraint forall(j in WEEKS)(decreasing([x[i,j] | i in GROUP]));
 
 % order the weeks in increasing order of the second member of the first group
-constraint forall(j in 1..w-1) ([k | k in x[1,j]][2] < [k | k in x[1,j+1]][2]);
-                
+% constraint forall(j in 1..w-1) ([k | k in x[1,j]][2] < [k | k in x[1,j+1]][2]);
+constraint (decreasing([x[1,j] | j in WEEKS]));              
 solve satisfy;
 
 output
