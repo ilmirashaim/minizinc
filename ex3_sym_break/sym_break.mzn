@@ -18,7 +18,7 @@ int: w;
 set of int: WEEKS = 1..w;
 
 % integer variables xijk taking values in the range [1..n]
-%  xijk == v means that person v is the j-th member of group i at
+%  x[i,j,k] == v means that person v is the j-th member of group i at
 % week k
 array[GROUP, GROUP_MEMBER, WEEKS] of var PEOPLE: x;
 
@@ -30,27 +30,22 @@ constraint forall(k in WEEKS)
 % nobody meets more than once
 constraint forall(k1,k2 in 1..w where k1<k2)
                    (forall (i1, i2 in GROUP)
-                      (forall(j1i1,j2i1 in GROUP_MEMBER where j1i1<j2i1)
-                         (forall(j1i2, j2i2 in GROUP_MEMBER where j1i2<j2i2)
+                      (forall(j1i1,j2i1 in GROUP_MEMBER where j1i1!=j2i1)
+                         (forall(j1i2, j2i2 in GROUP_MEMBER where j1i2!=j2i2)
                         ((x[i1,j1i1,k1] != x[i2,j1i2,k2]) \/ (x[i1,j2i1,k1] != x[i2,j2i2,k2])))));
              
 % symmetry break constraints
 
-% players permutations
 % we only need to assign consecutive values
 % 1, 2, .., n to the variables of the first column.
-constraint increasing([x[i,j,1] | i in GROUP, j in GROUP_MEMBER]);
-constraint increasing([x[i,1,1] | i in GROUP]);
+constraint forall(i in GROUP, j in GROUP_MEMBER) (x[i,j,1]  ==  (i-1)*s + j);
  
-% in-group permutations
 % we only need to force the members to be in increasing order
 constraint forall(i in GROUP, k in WEEKS)(increasing([x[i,j,k] | j in GROUP_MEMBER]));
  
-% group permutations 
 % for all weeks order the groups in increasing order of their first member
 constraint forall(k in WEEKS) (increasing([x[i,1,k] | i in GROUP]));
  
-% week permutations 
 % order the weeks in increasing order of the second member of the first group
 constraint increasing ([x[1,2,k] | k in WEEKS]);
 
