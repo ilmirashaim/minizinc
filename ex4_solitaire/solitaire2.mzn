@@ -24,29 +24,20 @@ array[1..n] of var CARDS: y;
 array[1..n] of var 0..m-1: a;
 
 %array of tuples for table constraint
-array[1..m, 1..2] of 0..m-1: tbl =array2d(1..m, 1..2, [CARDS_NUM[i] - j | i in 1..m-1, j in 0..1] ++ [CARDS_NUM[m-1], 0]);
-% array[1..m, 1..2] of 0..m-1:tbl2 = [|1,2,|2,3,|3,4,|4,0,|0,1|];
+array[1..m*s*s*2, 1..2] of CARDS:tbl;
+
 %constraints
 constraint x[1] == 1;
 
-constraint alldifferent(x);
+constraint inverse(x,y);
 
-constraint forall(i in 2..n) (x[y[i]]==i);
-constraint forall(i in 1..n) ( a[i]==x[i] mod m);
-
-%table constraint
-%to place card in stack must has a rank higher or lower than the top card on the stack by 1.
+% table constraint
+% to place card in stack must has a rank higher or lower than the top card on the stack by 1.
 constraint forall(i in 1..n-1) (
-	table([a[i], a[i+1]], tbl) \/ 
-	table([a[i+1], a[i]], tbl)
+	table([x[i], x[i+1]], tbl) 
 	);
 
 %the order of placing cards in stack (each time next card is taken from top of pile)
-% constraint forall(i in 1..npiles)(
-% 	value_precede(layout[i,1],layout[i,2], x) /\
-% 	value_precede(layout[i,2],layout[i,3], x)
-% );
-
 constraint forall(i in 1..npiles)
                     (y[layout[i,1]] < y[layout[i,2]] /\ y[layout[i,2]] < y[layout[i,3]]);
 
@@ -55,4 +46,3 @@ solve satisfy;
 output
     [show(x[i]) ++ 
     " "| i in 1..n] ;
-%     ++ [show(tbl[i,j]) | i in 1..m,j in 1..2];
