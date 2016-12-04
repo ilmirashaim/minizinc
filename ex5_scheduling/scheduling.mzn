@@ -1,3 +1,4 @@
+include "globals.mzn";
 % courses
 int: c;
 set of int: COURSES = 1..c;
@@ -35,6 +36,10 @@ array[COURSES, GROUPS] of var DAYS: t_days;
 array[COURSES, GROUPS] of var HOURS: t_hours;
 
 
+%intermediate constant
+int: n = c*g;
+array[1..n] of 1..1: ones = [1 | i in COURSES, j in GROUPS]; 
+
 % constraints
 % For every course and group, its two lectures have to be scheduled on
 % different days and the lab has to be scheduled after the theory
@@ -43,19 +48,26 @@ constraint forall(i in COURSES) (
                         lab_days[i,j] > t_days[i,j]
                     )
                  ); 
+% cumulative
 % At every time slot, there must be enough lecture rooms and lecturers
 % available for the scheduled lectures
-constraint forall(k in DAYS)(
-                    forall(h in HOURS)(
-                       sum(i in COURSES, j in GROUPS) (lab_days[i,j] == k /\ lab_hours[i,j]==h) <=nl
-                    )  
-                );
+constraint cumulative(
+                            [((lab_days[i,j]-1)*(end-ini)+ lab_hours[i,j]) | i in COURSES, j in GROUPS], 
+                            ones,
+                            ones,
+                            nl);
                 
-constraint forall(k in DAYS)(
-                    forall(h in HOURS)(
-                       sum(i in COURSES, j in GROUPS) (t_days[i,j] == k /\ t_hours[i,j]==h) <=nt
-                    )  
-                );
+constraint cumulative(
+                            [((t_days[i,j]-1)*(end-ini)+ t_hours[i,j]) | i in COURSES, j in GROUPS], 
+                            ones,
+                            ones,
+                            nt);
+%  constraint forall(i in COURSES) (cumulative(
+%                            [((t_days[i,j]-1)*(end-ini)+ t_hours[i,j]) | j in GROUPS] ++
+%                            [((lab_days[i,j]-1)*(end-ini)+ lab_hours[i,j]) | j in GROUPS],
+%                            [1 | j in 1..2*g],
+%                            [1 | j in 1..2*g],
+%                            NT[i]));               
 constraint forall(k in DAYS)(
                     forall(h in HOURS)(
                        forall(i in COURSES)(
